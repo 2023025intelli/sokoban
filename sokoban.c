@@ -1,6 +1,5 @@
 #include <ncurses.h>
 #include <malloc.h>
-#include <unistd.h>
 #include "sokoban.h"
 
 void s_init_colors() {
@@ -16,15 +15,15 @@ void s_init_colors() {
 sokoban_game *s_init_game() {
     s_init_colors();
     sokoban_game *game = malloc(sizeof(sokoban_game));
-    game->steps = s_list_init();
-    game->level = 2;
+    game->steps = s_steps_init();
+    game->level = 1;
     return game;
 }
 
 void s_free_game(sokoban_game *game) {
     if (game->field) free(game->field);
     if (game->boxes) free(game->boxes);
-    if (game->steps) s_list_destroy(game->steps);
+    if (game->steps) s_free_steps(game->steps);
     free(game);
 }
 
@@ -50,7 +49,7 @@ void s_move_player(sokoban_game *game, sokoban_move move) {
             game->boxes[(player_y + y) * game->cols + player_x + x] = SI_BOX;
             game->box_moved = 1;
         }
-        s_list_lpush(game->steps, game);
+        s_add_step(game->steps, game);
         if (game->steps->length > MAX_STEPS_UNDO) { s_list_rpop(game->steps); }
         game->player_y = player_y;
         game->player_x = player_x;
@@ -75,8 +74,8 @@ void s_reset_level(sokoban_game *game) {
     sprintf(path, "%s/level%d.bin", LEVEL_PATH, game->level);
     s_load_level_from_file(game, path);
     game->steps_count = 0;
-    s_list_destroy(game->steps);
-    game->steps = s_list_init();
+    s_free_steps(game->steps);
+    game->steps = s_steps_init();
     free(path);
 }
 
@@ -133,7 +132,7 @@ void s_load_level_from_file(sokoban_game *game, const char *path) {
     }
 }
 
-List *s_list_init() {
+List *s_steps_init() {
     List *list = malloc(sizeof(List));
     list->first = NULL;
     list->last = NULL;
@@ -141,7 +140,7 @@ List *s_list_init() {
     return list;
 }
 
-void s_list_destroy(List *list) {
+void s_free_steps(List *list) {
     Step *node = list->first;
     while (node) {
         Step *next = node->next;
@@ -151,7 +150,7 @@ void s_list_destroy(List *list) {
     free(list);
 }
 
-void s_list_lpush(List *list, sokoban_game *game) {
+void s_add_step(List *list, sokoban_game *game) {
     Step *new = malloc(sizeof(Step));
     new->y = game->player_y;
     new->x = game->player_x;
@@ -164,7 +163,7 @@ void s_list_lpush(List *list, sokoban_game *game) {
     list->length++;
 }
 
-void s_list_lpop(List *list, sokoban_game *game) {
+void s_step_back(List *list, sokoban_game *game) {
     if (!list->first) { return; }
     int y, x;
     Step *first = list->first;

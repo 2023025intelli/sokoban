@@ -69,9 +69,10 @@ void game(const char *sf) {
             {" play again ", restart_game},
             {"    exit    ", stop_game}
     };
-    int m_next_level_items_n = 3;
+    int m_next_level_items_n = 4;
     t_menu_item m_next_level_items[] = {
             {" next level ", next_level},
+            {"   resume   ", unpause_game},
             {" play again ", restart_game},
             {"    exit    ", stop_game}
     };
@@ -96,7 +97,7 @@ void game(const char *sf) {
                 move = SM_LEFT;
                 break;
             case 'z':
-                s_list_lpop(s_game->steps, s_game);
+                s_step_back(s_game->steps, s_game);
                 break;
             case 'q':
                 return;

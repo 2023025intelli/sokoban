@@ -3,7 +3,7 @@
 
 #define SLEEP_PERIOD 50
 #define COLS_PER_ROW 2
-#define MAX_LEVEL 3
+#define MAX_LEVEL 20
 #define STR(name) #name
 #define LEVEL_PATH STR(levels)
 #define MAX_STEPS_UNDO 32
@@ -76,13 +76,13 @@ void s_draw_block(WINDOW *win, int row, int col, int c, int color);
 
 void s_load_level_from_file(sokoban_game *game, const char *path);
 
-List *s_list_init();
+List *s_steps_init();
 
-void s_list_destroy(List *list);
+void s_free_steps(List *list);
 
-void s_list_lpush(List *list, sokoban_game *game);
+void s_add_step(List *list, sokoban_game *game);
 
-void s_list_lpop(List *list, sokoban_game *game);
+void s_step_back(List *list, sokoban_game *game);
 
 void s_list_rpop(List *list);
 
