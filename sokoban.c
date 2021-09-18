@@ -72,10 +72,12 @@ int s_level_complete(sokoban_game *game) {
 void s_reset_level(sokoban_game *game) {
     char *path = malloc(32 * sizeof(char));
     sprintf(path, "%s/level%d.bin", LEVEL_PATH, game->level);
-    s_load_level_from_file(game, path);
+    if (game->field) free(game->field);
+    if (game->boxes) free(game->boxes);
     game->steps_count = 0;
     s_free_steps(game->steps);
     game->steps = s_steps_init();
+    s_load_level_from_file(game, path);
     free(path);
 }
 
@@ -116,18 +118,23 @@ void s_load_level_from_file(sokoban_game *game, const char *path) {
     fread(&game->cols, sizeof(int), 1, f);
     fread(&game->player_y, sizeof(int), 1, f);
     fread(&game->player_x, sizeof(int), 1, f);
-    if (game->field) free(game->field);
-    if (game->boxes) free(game->boxes);
     game->field = malloc(game->rows * game->cols * sizeof(uint8_t));
     game->boxes = malloc(game->rows * game->cols * sizeof(uint8_t));
     for (int i = 0; i < game->rows * game->cols; i++) {
         uint8_t x = 0;
         fread(&x, sizeof(uint8_t), 1, f);
-        if (x == SI_WALL || x == SI_POINT) { game->field[i] = x; }
-        else if (x == SI_BOX) { game->boxes[i] = x; }
-        else if (x == SI_POINT_BOX) {
+        if (x == SI_WALL || x == SI_POINT) {
+            game->field[i] = x;
+            game->boxes[i] = SI_NONE;
+        } else if (x == SI_BOX) {
+            game->boxes[i] = x;
+            game->field[i] = SI_NONE;
+        } else if (x == SI_POINT_BOX) {
             game->boxes[i] = SI_BOX;
             game->field[i] = SI_POINT;
+        } else {
+            game->field[i] = SI_NONE;
+            game->boxes[i] = SI_NONE;
         }
     }
 }

@@ -4,6 +4,8 @@
 #include <menu.h>
 #include "sokoban.h"
 
+#define INFO_WINDOW_WIDTH 18
+
 typedef struct {
     char *title;
     void *usr_ptr;
@@ -130,8 +132,8 @@ void game(const char *sf) {
 }
 
 void init_score_window() {
-    sw_score_box = newwin(8, 16, 0, 0);
-    sw_score = derwin(sw_score_box, 6, 14, 1, 1);
+    sw_score_box = newwin(8, INFO_WINDOW_WIDTH, 0, 0);
+    sw_score = derwin(sw_score_box, 6, INFO_WINDOW_WIDTH - 2, 1, 1);
     refresh();
 }
 
@@ -140,13 +142,13 @@ void print_score(sokoban_game *game) {
     wclear(sw_score);
     mvwprintw(sw_score, 0, 0, "level: %d", game->level);
     mvwprintw(sw_score, 1, 0, "steps made: %d", game->steps_count);
-    wrefresh(sw_score_box);
-    wrefresh(sw_score);
+    wnoutrefresh(sw_score_box);
+    wnoutrefresh(sw_score);
 }
 
 void init_info_window() {
-    sw_info_box = newwin(8, 16, 8, 0);
-    sw_info = derwin(sw_info_box, 6, 14, 1, 1);
+    sw_info_box = newwin(8, INFO_WINDOW_WIDTH, 8, 0);
+    sw_info = derwin(sw_info_box, 6, INFO_WINDOW_WIDTH - 2, 1, 1);
     refresh();
 }
 
@@ -155,12 +157,12 @@ void print_info() {
     mvwprintw(sw_info, 0, 0, "space: pause");
     mvwprintw(sw_info, 1, 0, "z: step back");
     mvwprintw(sw_info, 2, 0, "q: quit");
-    wrefresh(sw_info_box);
-    wrefresh(sw_info);
+    wnoutrefresh(sw_info_box);
+    wnoutrefresh(sw_info);
 }
 
 void init_field_window(sokoban_game *game) {
-    sw_main_border = newwin(game->rows + 2, game->cols * COLS_PER_ROW + 2, 0, 16);
+    sw_main_border = newwin(game->rows + 2, game->cols * COLS_PER_ROW + 2, 0, INFO_WINDOW_WIDTH);
     sw_main = derwin(sw_main_border, game->rows, game->cols * COLS_PER_ROW, 1, 1);
     refresh();
     print_field();
@@ -168,8 +170,8 @@ void init_field_window(sokoban_game *game) {
 
 void print_field() {
     box(sw_main_border, 0, 0);
-    wrefresh(sw_main_border);
-    wrefresh(sw_main);
+    wnoutrefresh(sw_main_border);
+    wnoutrefresh(sw_main);
 }
 
 void reset_field_window(sokoban_game *game) {
@@ -199,7 +201,7 @@ void show_menu(sokoban_game *game, t_menu_item *m_items, int items_n) {
     int active = 1;
     nodelay(stdscr, FALSE);
     // TODO
-    WINDOW *sw_menu = newwin(items_n + 2, 14, game->rows / 2 - 2, game->cols * COLS_PER_ROW / 2 + 10);
+    WINDOW *sw_menu = newwin(items_n + 2, 14, game->rows / 2 - 2, game->cols * COLS_PER_ROW / 2 + INFO_WINDOW_WIDTH - 6);
     ITEM **items = (ITEM **) calloc(items_n + 1, sizeof(ITEM *));
     for (int i = 0; i < items_n; ++i) {
         items[i] = new_item(m_items[i].title, NULL);

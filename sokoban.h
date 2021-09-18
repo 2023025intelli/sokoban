@@ -3,7 +3,7 @@
 
 #define SLEEP_PERIOD 50
 #define COLS_PER_ROW 2
-#define MAX_LEVEL 20
+#define MAX_LEVEL 30
 #define STR(name) #name
 #define LEVEL_PATH STR(levels)
 #define MAX_STEPS_UNDO 32
