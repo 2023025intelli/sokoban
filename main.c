@@ -64,7 +64,6 @@ int main(int argc, char *argv[]) {
 }
 
 void game(const char *sf) {
-    sokoban_game *s_game = s_init_game();
     int m_pause_items_n = 3;
     t_menu_item m_pause_items[] = {
             {"   resume   ", unpause_game},
@@ -78,7 +77,9 @@ void game(const char *sf) {
             {" play again ", restart_game},
             {"    exit    ", stop_game}
     };
-    s_reset_level(s_game);
+    sokoban_game *s_game = s_init_game();
+    if (sf) s_load_game(s_game);
+    else s_reset_level(s_game);
     init_field_window(s_game);
     print_info();
     print_score(s_game);
@@ -100,6 +101,9 @@ void game(const char *sf) {
                 break;
             case 'z':
                 s_step_back(s_game->steps, s_game);
+                break;
+            case 's':
+                s_save_game(s_game);
                 break;
             case 'q':
                 return;
@@ -156,7 +160,8 @@ void print_info() {
     box(sw_info_box, 0, 0);
     mvwprintw(sw_info, 0, 0, "space: pause");
     mvwprintw(sw_info, 1, 0, "z: step back");
-    mvwprintw(sw_info, 2, 0, "q: quit");
+    mvwprintw(sw_info, 2, 0, "s: save game");
+    mvwprintw(sw_info, 3, 0, "q: quit");
     wnoutrefresh(sw_info_box);
     wnoutrefresh(sw_info);
 }
@@ -201,7 +206,8 @@ void show_menu(sokoban_game *game, t_menu_item *m_items, int items_n) {
     int active = 1;
     nodelay(stdscr, FALSE);
     // TODO
-    WINDOW *sw_menu = newwin(items_n + 2, 14, game->rows / 2 - 2, game->cols * COLS_PER_ROW / 2 + INFO_WINDOW_WIDTH - 6);
+    WINDOW *sw_menu = newwin(items_n + 2, 14, game->rows / 2 - 2,
+                             game->cols * COLS_PER_ROW / 2 + INFO_WINDOW_WIDTH - 6);
     ITEM **items = (ITEM **) calloc(items_n + 1, sizeof(ITEM *));
     for (int i = 0; i < items_n; ++i) {
         items[i] = new_item(m_items[i].title, NULL);

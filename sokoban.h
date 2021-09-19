@@ -76,6 +76,10 @@ void s_draw_block(WINDOW *win, int row, int col, int c, int color);
 
 void s_load_level_from_file(sokoban_game *game, const char *path);
 
+void s_save_game(sokoban_game *game);
+
+void s_load_game(sokoban_game *game);
+
 List *s_steps_init();
 
 void s_free_steps(List *list);

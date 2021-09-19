@@ -139,6 +139,40 @@ void s_load_level_from_file(sokoban_game *game, const char *path) {
     }
 }
 
+void s_save_game(sokoban_game *game) {
+    FILE *f = fopen("save.sav", "wb");
+    fwrite(&game->level, sizeof(int), 1, f);
+    fwrite(&game->rows, sizeof(int), 1, f);
+    fwrite(&game->cols, sizeof(int), 1, f);
+    fwrite(&game->player_y, sizeof(int), 1, f);
+    fwrite(&game->player_x, sizeof(int), 1, f);
+    for (int i = 0; i < game->rows * game->cols; i++) {
+        fwrite(&game->field[i], sizeof(uint8_t), 1, f);
+    }
+    for (int i = 0; i < game->rows * game->cols; i++) {
+        fwrite(&game->boxes[i], sizeof(uint8_t), 1, f);
+    }
+}
+
+void s_load_game(sokoban_game *game) {
+    FILE *f = fopen("save.sav", "rb");
+    fread(&game->level, sizeof(int), 1, f);
+    fread(&game->rows, sizeof(int), 1, f);
+    fread(&game->cols, sizeof(int), 1, f);
+    fread(&game->player_y, sizeof(int), 1, f);
+    fread(&game->player_x, sizeof(int), 1, f);
+    if (game->field) { free(game->field); }
+    if (game->boxes) { free(game->boxes); }
+    game->field = malloc(game->rows * game->cols * sizeof(uint8_t));
+    game->boxes = malloc(game->rows * game->cols * sizeof(uint8_t));
+    for (int i = 0; i < game->rows * game->cols; i++) {
+        fread(&game->field[i], sizeof(uint8_t), 1, f);
+    }
+    for (int i = 0; i < game->rows * game->cols; i++) {
+        fread(&game->boxes[i], sizeof(uint8_t), 1, f);
+    }
+}
+
 List *s_steps_init() {
     List *list = malloc(sizeof(List));
     list->first = NULL;
